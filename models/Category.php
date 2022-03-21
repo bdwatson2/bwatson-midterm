@@ -36,10 +36,9 @@
                     WHERE c.id = ? 
                     LIMIT 0,1';
 
+            //preparing, binding, executing the query
             $stmt = $this->conn->prepare($query);
-
             $stmt->bindParam(1, $this->id);
-
             $stmt->execute();
 
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -50,16 +49,22 @@
 
         }
 
+        //create a category
         public function create(){
             $query = 'INSERT INTO ' . $this->table . ' 
              SET category = ?';
 
+            //preparing the query
             $stmt = $this->conn->prepare($query);
 
+            //cleaning the author
             $this->author = htmlspecialchars(strip_tags($this->category));
 
+            //binding a parameter
             $stmt->bindParam(1, $this->category);
 
+            //by ordering by DESC, we can ensure that the most recently created
+            //category is returned in the event two categories are the same
             if($stmt->execute()){
                 $query2 = 'SELECT * FROM ' . $this->table . ' WHERE category = ? ORDER BY id DESC';
                 $stmt2 = $this->conn->prepare($query2);
@@ -81,14 +86,18 @@
             $query = 'UPDATE ' . $this->table . ' 
              SET category = ? WHERE id = ?';
 
+            //preparing the query
             $stmt = $this->conn->prepare($query);
 
+            //cleaning the data
             $this->category = htmlspecialchars(strip_tags($this->category));
             $this->id = htmlspecialchars(strip_tags($this->id));
 
+            //binding parameters
             $stmt->bindParam(1, $this->category);
             $stmt->bindParam(2, $this->id);
 
+            //getting updated category info
             if($stmt->execute()){
                 $query2 = 'SELECT * FROM ' . $this->table . ' WHERE category = ? ORDER BY id DESC';
                 $stmt2 = $this->conn->prepare($query2);
@@ -105,6 +114,8 @@
             return false;
         }
 
+        /*this function checks to make sure the category
+        exists, if it doesn't, the categoryAnswer returns NULL*/
         public function isValidCategory(){
             $query = 'SELECT *  
                     FROM ' . $this->table . ' c 
@@ -126,10 +137,9 @@
             $query = 'DELETE FROM ' . $this->table . ' 
               WHERE id = ?';
 
+            //preparing, cleaning, binding
             $stmt = $this->conn->prepare($query);
-
             $this->id = htmlspecialchars(strip_tags($this->id));
-
             $stmt->bindParam(1, $this->id);
 
             if($stmt->execute()){
@@ -140,6 +150,7 @@
             return false;
         }
 
+        //a function to see if the category exists in a quote
         public function inQuote(){
             $query = 'SELECT *  
                     FROM quotes q 

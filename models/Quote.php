@@ -48,11 +48,9 @@
                     WHERE q.id = ? 
                     LIMIT 0,1';
 
-
+            //preparing, binding, executing
             $stmt = $this->conn->prepare($query);
-
             $stmt->bindParam(1, $this->id);
-
             $stmt->execute();
 
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -76,10 +74,9 @@
                 categories c ON q.categoryId = c.id
             WHERE a.id = ?';
 
+            //preparing, binding, executing
             $stmt = $this->conn->prepare($query);
-
             $stmt->bindParam(1, $this->authorId);
-
             $stmt->execute();
 
             return $stmt;
@@ -96,10 +93,9 @@
                 categories c ON q.categoryId = c.id
             WHERE c.id = ?';
 
+            //preparing, binding, executing
             $stmt = $this->conn->prepare($query);
-
             $stmt->bindParam(1, $this->categoryId);
-
             $stmt->execute();
 
             return $stmt;
@@ -118,6 +114,7 @@
 
             $stmt = $this->conn->prepare($query);
 
+            //binding parameters
             $stmt->bindParam(1, $this->authorId);
             $stmt->bindParam(2, $this->categoryId);
 
@@ -132,16 +129,20 @@
             $query = 'INSERT INTO ' . $this->table . ' 
              SET quote = ?, authorId = ?, categoryId = ?';
 
+            //preparing the query
             $stmt = $this->conn->prepare($query);
 
+            //cleaning the query
             $this->quote = htmlspecialchars(strip_tags($this->quote));
             $this->authorId = htmlspecialchars(strip_tags($this->authorId));
             $this->categoryId = htmlspecialchars(strip_tags($this->categoryId));
 
+            //binding parameters
             $stmt->bindParam(1, $this->quote);
             $stmt->bindParam(2, $this->authorId);
             $stmt->bindParam(3, $this->categoryId);
 
+            //executing and making sure the id for the new quote is returned 
             if($stmt->execute()){
                 $query2 = 'SELECT * FROM ' . $this->table . ' WHERE quote = ? ORDER BY id DESC';
                 $stmt2 = $this->conn->prepare($query2);
@@ -160,6 +161,8 @@
             return false;
         }
 
+        //a function to check the validity of an author by id
+        //it's the same as the one in the Author class
         public function isValidAuthor(){
             $query = 'SELECT *  
                     FROM authors a 
@@ -176,6 +179,8 @@
             $this->authorAnswer = $row['author'];
         }
 
+        //a function to check the validity of a category by id
+        //it's the same as the one in the Category Class
         public function isValidCategory(){
             $query = 'SELECT *  
                     FROM categories c 
@@ -199,16 +204,19 @@
 
             $stmt = $this->conn->prepare($query);
 
+            //cleaning the data
             $this->quote = htmlspecialchars(strip_tags($this->quote));
             $this->authorId = htmlspecialchars(strip_tags($this->authorId));
             $this->categoryId = htmlspecialchars(strip_tags($this->categoryId));
             $this->id = htmlspecialchars(strip_tags($this->id));
 
+            //binding parameters
             $stmt->bindParam(1, $this->quote);
             $stmt->bindParam(2, $this->authorId);
             $stmt->bindParam(3, $this->categoryId);
             $stmt->bindParam(4, $this->id);
 
+            //executing (and getting all the updated data)
             if($stmt->execute()){
                 $query2 = 'SELECT * FROM ' . $this->table . ' WHERE quote = ? ORDER BY id DESC';
                 $stmt2 = $this->conn->prepare($query2);
@@ -227,6 +235,8 @@
             return false;
         }
 
+        //checking to see if there is an existing quote accompanying a quote id
+        //super similar to the other isValid functions
         public function isValidQuote(){
             $query = 'SELECT *  
                     FROM ' . $this->table . ' q 
