@@ -225,7 +225,102 @@
         }
         else {
             echo json_encode (
-                array('message'=>'Category Not Created Error')
+                array('message'=>'Quote Not Created Error')
+            );
+        }
+    }
+
+    //update
+    if ($method === 'PUT'){
+        $data = json_decode(file_get_contents("php://input"));
+
+        $quotes->id = $data->id;
+        $quotes->quote = $data->quote;
+        $quotes->authorId = $data->authorId;
+        $quotes->categoryId = $data->categoryId;
+
+        if ($quotes->id === NULL || $quotes->quote === NULL || $quotes->authorId === NULL || $quotes->categoryId === NULL)
+        {
+            echo json_encode (array('message' => 'Missing Required Parameters'));
+            return;
+        }
+
+
+        $quotes->isValidAuthor();
+        $quotes->isValidCategory();
+        $quotes->isValidQuote();
+        
+
+        if($quotes->authorAnswer === NULL) {
+            echo json_encode(
+                array('message' => 'authorId Not Found')
+            );
+            return;
+        }
+
+        if($quotes->categoryAnswer === NULL) {
+            echo json_encode(
+                array('message' => 'categoryId Not Found')
+            );
+            return;
+        }
+
+        if($quotes->quoteAnswer === NULL) {
+            echo json_encode(
+                array('message' => 'No Quotes Found')
+            );
+            return;
+        }
+
+
+        if($quotes->update()){
+            $quotes_arr = array(
+                'id' => $quotes->id,
+                'quote' => $quotes->quote,
+                'authorId' => $quotes->authorId,
+                'categoryId' => $quotes->categoryId
+            );
+            echo json_encode ($quotes_arr);
+        }
+        else {
+            echo json_encode (
+                array('message'=>'Quote Not Updated Error')
+            );
+        }
+    }
+
+
+    //delete
+    if ($method === 'DELETE'){
+        $data = json_decode(file_get_contents("php://input"));
+
+        $quotes->id = $data->id;
+
+        if ($quotes->id === NULL)
+        {
+            echo json_encode (array('message' => 'Missing Required Parameters'));
+            return;
+        }
+
+        $quotes->isValidQuote();
+
+        if($quotes->quoteAnswer === NULL) {
+            echo json_encode(
+                array('message' => 'No Quotes Found')
+            );
+            return;
+        }
+
+
+        if($quotes->delete()){
+            $quotes_arr = array(
+                'id' => $quotes->id
+            );
+            echo json_encode ($quotes_arr);
+        }
+        else {
+            echo json_encode (
+                array('message'=>'Quote Not Deleted Error')
             );
         }
     }

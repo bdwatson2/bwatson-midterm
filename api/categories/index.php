@@ -97,3 +97,81 @@
             );
         }
     }
+
+    //update
+    if ($method === 'PUT'){
+        $data = json_decode(file_get_contents("php://input"));
+
+        $categories->category = $data->category;
+        $categories->id = $data->id;
+
+        if ($categories->category === NULL || $categories->id === NULL)
+        {
+            echo json_encode (array('message' => 'Missing Required Parameters'));
+            return;
+        }
+
+        $categories->isValidCategory();
+
+        if($categories->categoryAnswer === NULL) {
+            echo json_encode(
+                array('message' => 'categoryId Not Found')
+            );
+            return;
+        }
+
+        if($categories->update()){
+            $categories_arr = array(
+                'id' => $categories->id,
+                'category' => $categories->category
+            );
+            echo json_encode ($categories_arr);
+        }
+        else {
+            echo json_encode (
+                array('message'=>'Category Not Updated Error')
+            );
+        }
+    }
+
+    //delete
+    if ($method === 'DELETE'){
+        $data = json_decode(file_get_contents("php://input"));
+
+        $categories->id = $data->id;
+
+        if ($categories->id === NULL)
+        {
+            echo json_encode (array('message' => 'Missing Required Parameters'));
+            return;
+        }
+
+        $categories->isValidCategory();
+        $categories->inQuote();
+
+        if($categories->categoryAnswer === NULL) {
+            echo json_encode(
+                array('message' => 'categoryId Not Found')
+            );
+            return;
+        }
+
+        if($categories->quoteAnswer !== NULL) {
+            echo json_encode(
+                array('message' => 'Cannot Delete Category, id Currently In Use')
+            );
+            return;
+        }
+
+        if($categories->delete()){
+            $categories_arr = array(
+                'id' => $categories->id
+            );
+            echo json_encode ($categories_arr);
+        }
+        else {
+            echo json_encode (
+                array('message'=>'Category Not Deleted Error')
+            );
+        }
+    }

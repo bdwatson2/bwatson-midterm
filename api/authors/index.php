@@ -97,3 +97,81 @@
             );
         }
     }
+
+    //update
+    if ($method === 'PUT'){
+        $data = json_decode(file_get_contents("php://input"));
+
+        $authors->author = $data->author;
+        $authors->id = $data->id;
+
+        if ($authors->author === NULL || $authors->id === NULL)
+        {
+            echo json_encode (array('message' => 'Missing Required Parameters'));
+            return;
+        }
+
+        $authors->isValidAuthor();
+
+        if($authors->authorAnswer === NULL) {
+            echo json_encode(
+                array('message' => 'authorId Not Found')
+            );
+            return;
+        }
+
+        if($authors->update()){
+            $authors_arr = array(
+                'id' => $authors->id,
+                'author' => $authors->author
+            );
+            echo json_encode ($authors_arr);
+        }
+        else {
+            echo json_encode (
+                array('message'=>'Author Not Updated Error')
+            );
+        }
+    }
+
+    //delete
+    if ($method === 'DELETE'){
+        $data = json_decode(file_get_contents("php://input"));
+
+        $authors->id = $data->id;
+
+        if ($authors->id === NULL)
+        {
+            echo json_encode (array('message' => 'Missing Required Parameters'));
+            return;
+        }
+
+        $authors->isValidAuthor();
+        $authors->inQuote();
+
+        if($authors->authorAnswer === NULL) {
+            echo json_encode(
+                array('message' => 'authorId Not Found')
+            );
+            return;
+        }
+
+        if($authors->quoteAnswer !== NULL) {
+            echo json_encode(
+                array('message' => 'Cannot Delete Author, id Currently In Use')
+            );
+            return;
+        }
+
+        if($authors->delete()){
+            $authors_arr = array(
+                'id' => $authors->id
+            );
+            echo json_encode ($authors_arr);
+        }
+        else {
+            echo json_encode (
+                array('message'=>'Author Not Deleted Error')
+            );
+        }
+    }

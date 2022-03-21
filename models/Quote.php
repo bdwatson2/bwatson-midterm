@@ -13,6 +13,7 @@
         public $categoryId;
         public $authorAnswer;
         public $categoryAnswer;
+        public $quoteAnswer;
 
         //constructor with the database
         public function __construct($db){
@@ -190,5 +191,76 @@
 
             $this->categoryAnswer = $row['category'];
         }
+
+        //PUT function for quote
+        public function update(){
+            $query = 'UPDATE ' . $this->table . ' 
+             SET quote = ?, authorId = ?, categoryId = ? WHERE id = ?';
+
+            $stmt = $this->conn->prepare($query);
+
+            $this->quote = htmlspecialchars(strip_tags($this->quote));
+            $this->authorId = htmlspecialchars(strip_tags($this->authorId));
+            $this->categoryId = htmlspecialchars(strip_tags($this->categoryId));
+            $this->id = htmlspecialchars(strip_tags($this->id));
+
+            $stmt->bindParam(1, $this->quote);
+            $stmt->bindParam(2, $this->authorId);
+            $stmt->bindParam(3, $this->categoryId);
+            $stmt->bindParam(4, $this->id);
+
+            if($stmt->execute()){
+                $query2 = 'SELECT * FROM ' . $this->table . ' WHERE quote = ? ORDER BY id DESC';
+                $stmt2 = $this->conn->prepare($query2);
+                $stmt2->bindParam(1, $this->quote);
+                $stmt2->execute();
+                $row = $stmt2->fetch(PDO::FETCH_ASSOC);
+
+                $this->id = $row['id'];
+                $this->quote = $row['quote'];
+                $this->authorId = $row['authorId'];
+                $this->categoryId = $row['categoryId'];
+                return true;
+            }
+
+            printf("Error: %s.\n", $stmt->error);
+            return false;
+        }
+
+        public function isValidQuote(){
+            $query = 'SELECT *  
+                    FROM ' . $this->table . ' q 
+                    WHERE q.id = ?';
+
+            $stmt = $this->conn->prepare($query);
+
+            $stmt->bindParam(1, $this->id);
+
+            $stmt->execute();
+
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $this->quoteAnswer = $row['quote'];
+        }
+
+        //DELETE function for quote
+        public function delete(){
+            $query = 'DELETE FROM ' . $this->table . ' 
+              WHERE id = ?';
+
+            $stmt = $this->conn->prepare($query);
+
+            $this->id = htmlspecialchars(strip_tags($this->id));
+
+            $stmt->bindParam(1, $this->id);
+
+            if($stmt->execute()){
+                return true;
+            }
+
+            printf("Error: %s.\n", $stmt->error);
+            return false;
+        }
+
 
     }
